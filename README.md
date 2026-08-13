@@ -41,4 +41,104 @@ How it fits together (runtime flow):
 ```text
 /
 ├── Main         # Python Function file intended to be pasted into Open WebUI
-└── README.md    # Original project README (Indonesian) — replaced by this document
+└── README.md    # Project README
+```
+
+## Requirements
+- Open WebUI (container or local instance)
+- PostgreSQL reachable from the Open WebUI runtime
+- Groq API account and API key (used via OpenAI-compatible client)
+- Internet access for model API calls and embeddings (if not running locally)
+- Python dependencies inside Open WebUI: llama_index, sqlalchemy, openai, sentence-transformers
+
+## Installation (prepare environment)
+This Function is intended to run inside Open WebUI. The shortest path:
+
+1. Run Open WebUI (example Docker run):
+```bash
+docker run -d -p 3030:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v open-webui:/app/backend/data \
+  --name open-webui1 --restart always \
+  -e DATABASE_URL="postgresql://<DB_USER>:<DB_PASS>@host.docker.internal:5432/<DB_NAME>" \
+  ghcr.io/open-webui/open-webui:main
+```
+2. Ensure PostgreSQL is reachable from the Open WebUI container. The pipeline expects a table named `dataset_pembangunan`.
+3. Open Open WebUI in a browser: http://localhost:3030
+4. Go to Workspace → Functions → Add new function → paste the contents of `Main` → Save and activate the pipeline.
+5. Use the Open WebUI chat to trigger the `Magang_Chatbot` pipeline.
+
+## Configuration
+The current `Main` script contains hardcoded database connection strings and API keys. DO NOT commit secrets — replace these with environment variables or secure secret management.
+
+Recommended environment variables (suggested names):
+- GROQ_API_KEY — API key for Groq/OpenAI-compatible client
+- GROQ_BASE_URL — base URL if different from default
+- DATABASE_URL — SQLAlchemy-compatible PostgreSQL URL (e.g. postgresql://user:pass@host:5432/dbname)
+
+Notes:
+- The script uses host addresses such as `host.docker.internal` to reach a host Postgres instance from Docker. If your Postgres is in Docker compose, use service names and a shared network.
+- The repository contains inconsistent references (examples mention database names `film`, `bangun`, and the script uses `bangun`). Ensure the database name used in configuration matches the table location.
+
+## Running the Project
+From Open WebUI (preferred):
+- Add the Function as described in Installation.
+- Ask a question in Open WebUI chat and select/trigger the `Magang_Chatbot` pipeline.
+
+Development (local / iterating):
+- Edit `Main` to read configuration from environment variables (recommended).
+- Ensure any Python packages required by the function are available inside Open WebUI's Python environment.
+
+## Output / Answer format
+The pipeline uses a specific text format when the LLM produces SQL and when it returns the final answer. The `Main` script defines two formats (excerpted from the prompt templates used by the code):
+
+1) When a query is needed
+```
+Question: <user question here>
+SQLQuery: <SQL query to run — only the SQL statement>
+SQLResult: <Result returned by the database>
+Answer: <Final answer summarized from SQLResult>
+```
+
+2) When no query is needed
+```
+Question: <user question here>
+Answer: <Final answer here>
+```
+
+Example with placeholders (do not assume column names):
+```
+Question: Show projects in city X for year 2022
+SQLQuery: SELECT <columns> FROM dataset_pembangunan WHERE <conditions> LIMIT 10
+SQLResult: [  {"column1": "value1", "column2": "value2"}, ... ]
+Answer: In 2022, the database shows N projects in city X. Example entries include ... (summary derived from SQLResult)
+```
+
+Note: The repository does not include the table schema or real query results. The example above shows the format the Function produces; actual SQL and results depend on your database schema and data.
+
+## Database
+- Database type: PostgreSQL (no schema migrations are included).
+- Table required: dataset_pembangunan — the Main script queries this table. The repository does not include table schema or sample data; you must provide your own table with relevant columns.
+
+## Troubleshooting
+- Open WebUI cannot reach Postgres: check network (host.docker.internal vs localhost), ports, firewall, and credentials.
+- Table `dataset_pembangunan` not found: ensure the table exists in the configured database and the DB connection points to the correct database name.
+- Model authentication/permission errors: verify Groq API key and account access to the specific models.
+- Missing Python dependencies: ensure LlamaIndex, SQLAlchemy, openai, and sentence-transformers are installed in the environment Open WebUI uses to run the function.
+
+## Security Notes
+- The `Main` file in this repository contains hardcoded database credentials and API keys. Remove hardcoded secrets immediately and use environment variables or a secret manager.
+- Do not share or commit API keys, database passwords, or other secrets to the repository.
+
+## Development
+- To extend the function: make it read configuration from environment variables; add logging; add explicit error handling for DB and model errors; add schema discovery or sample data providing a minimal schema file.
+- Consider splitting the function into modules and adding a requirements.txt with pin versions.
+
+## Contributing
+- Fork the repo, propose changes, and open a PR. This repository does not include contribution guidelines; please follow typical open-source practices (clear PR description, tests if possible).
+
+## License
+- No license file found in the repository. If you intend to make this public and reusable, add a LICENSE file.
+
+## Author
+- Repository owner: GitHub user katarizkyo99 (no explicit author metadata or contact details found in repo).
