@@ -46,7 +46,7 @@ Pastikan *database* PostgreSQL Anda sudah berjalan dan tabel `dataset_pembanguna
 1. Buka Open WebUI di *browser* Anda (`http://localhost:3030`).
 2. Masuk ke menu **Workspace** > **Functions**
 3. Buat *Function* baru dengan mengeklik tombol **+ (Add)**.
-4. Salin (`Copy`) seluruh kode Python Text-to-SQL Anda, lalu tempel (`Paste`) ke dalam editor teks yang disediakan.
+4. Salin (`Copy`) seluruh kode Python pada file Main, lalu tempel (`Paste`) ke dalam editor teks yang disediakan.
 5. Simpan dan aktifkan pipeline.
 6. Pipeline `Magang_Chatbot` kini siap digunakan di antarmuka obrolan utama.
 
