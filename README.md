@@ -126,19 +126,8 @@ Note: The repository does not include the table schema or real query results. Th
 - Model authentication/permission errors: verify Groq API key and account access to the specific models.
 - Missing Python dependencies: ensure LlamaIndex, SQLAlchemy, openai, and sentence-transformers are installed in the environment Open WebUI uses to run the function.
 
-## Security Notes
-- The `Main` file in this repository contains hardcoded database credentials and API keys. Remove hardcoded secrets immediately and use environment variables or a secret manager.
-- Do not share or commit API keys, database passwords, or other secrets to the repository.
-
-## Development
-- To extend the function: make it read configuration from environment variables; add logging; add explicit error handling for DB and model errors; add schema discovery or sample data providing a minimal schema file.
-- Consider splitting the function into modules and adding a requirements.txt with pin versions.
-
 ## Contributing
 - Fork the repo, propose changes, and open a PR. This repository does not include contribution guidelines; please follow typical open-source practices (clear PR description, tests if possible).
 
-## License
-- No license file found in the repository. If you intend to make this public and reusable, add a LICENSE file.
-
 ## Author
-- Repository owner: GitHub user katarizkyo99 (no explicit author metadata or contact details found in repo).
+- Repository owner: katarizkyo99
