@@ -1,58 +1,44 @@
-## Chatbot LLM RAG Database PostgreSQL dengan Open WebUI (Text-to-SQL Pipeline)
+# Chatbot LLM RAG (Text-to-SQL) for Open WebUI
 
-Pipeline chatbot dengan **Open WebUI** yang mengintegrasikan LlamaIndex, LLM (via Groq), dan PostgreSQL untuk mengubah pertanyaan bahasa natural menjadi *query* SQL (Text-to-SQL). Pipeline ini dirancang khusus untuk membaca `dataset_pembangunan` dalam PostgreSQL dan dilengkapi dengan agen validator untuk memastikan jawaban bebas dari halusinasi.
+A small Open WebUI Function that converts natural-language questions into SQL queries and returns answers sourced directly from a PostgreSQL table. The pipeline uses LlamaIndex for text-to-SQL orchestration, a HuggingFace embedding model for retrieval, and Groq-hosted LLMs for SQL generation and answer validation. It is designed to be used inside Open WebUI as a user-defined Function (pipe).
 
-## ✨ Fitur Utama
+## Features
+- Text-to-SQL: Converts user questions into SQL queries scoped to a single table.
+- Vector retrieval: Uses sentence-transformers/all-MiniLM-L6-v2 embeddings to retrieve relevant schema/context.
+- SQL execution: Runs generated SQL against PostgreSQL (table: dataset_pembangunan).
+- Answer validation: Uses a second model to validate generated answers in a loop (up to 3 attempts).
+- Case-insensitive text matching: Uses ILIKE in generated SQL for flexible text matching.
+- Result citation: Emits the executed SQL as a citation event to Open WebUI (for transparency).
 
-- **Smart Column Filtering**: Mampu memilih beberapa kolom yang relevan (`SELECT a, b, c FROM d`) secara otomatis berdasarkan konteks pertanyaan.
-- **Entity Disambiguation**: Memisahkan dan mengelompokkan data secara akurat jika terdapat nama entitas yang memiliki awalan mirip (misal: membedakan berbagai "Dinas" atau "Balai") menggunakan pengelompokan pada kolom `unor`.
-- **Flexible Text Matching**: Secara otomatis menggunakan klausa `ILIKE` alih-alih `=` pada SQL untuk pencarian teks yang lebih fleksibel dan tidak *case-sensitive*.
-- **Auto-Validation System**: Dilengkapi dengan sistem validasi *looping* (hingga 3 percobaan) menggunakan model `gemma2-9b-it` untuk memastikan jawaban akhir benar-benar bersumber dari *database*, bukan karangan LLM.
-- **Transparansi Query (Sitasi)**: Menampilkan *query* SQL asli yang dieksekusi secara langsung di antarmuka Open WebUI sebagai bentuk referensi/sitasi bagi pengguna.
+## System Architecture
+- Open WebUI Function (single Python script `Main`) — runtime environment provided by Open WebUI.
+- LlamaIndex / ObjectIndex & retriever — builds a small schema-aware index for SQL table retrieval and text-to-SQL prompting.
+- Embedding model — HuggingFace sentence-transformers/all-MiniLM-L6-v2 used for similarity retrieval.
+- Groq LLMs (via a Groq-compatible OpenAI client) — one model for generation (llama3-70b-8192) and another for validation (gemma2-9b-it).
+- PostgreSQL — single table `dataset_pembangunan` is queried for answers.
 
-## 🛠️ Prasyarat (Prerequisites)
+How it fits together (runtime flow):
+1. A user message arrives in Open WebUI and triggers the Function `Magang_Chatbot` (class `Pipe` in `Main`).
+2. The Function creates a SQLDatabase (SQLAlchemy engine) and an ObjectIndex wrapping the table schema.
+3. A retriever + Groq LLM produce a SQL query (text-to-SQL); the SQL is executed against `dataset_pembangunan`.
+4. The SQL result is sent back to the LLM for generation of a human-readable answer; the answer is validated by a second model. If validation fails, the pipeline retries up to 3 times.
+5. The pipeline returns the validated answer and emits a citation event containing the SQL text.
 
-Sebelum menjalankan pipeline ini, pastikan sistem operasi Windows Anda sudah terinstal:
-1. **Docker Desktop** (Pastikan WSL2 backend sudah aktif).
-2. **PostgreSQL** (Jika ingin menjalankan *database* di luar Docker, atau gunakan PostgreSQL di dalam Docker sesuai langkah di bawah).
-3. Akun dan API Key aktif dari **Groq** (menggunakan model `llama3-70b-8192` dan `gemma2-9b-it`).
+## Tech Stack
+- Frontend: Open WebUI (function workspace)
+- Backend: Python script running inside Open WebUI's Function environment
+- Database: PostgreSQL (table: dataset_pembangunan)
+- AI / LLM:
+  - Groq-hosted models (used via OpenAI-compatible client)
+  - llama_index (LlamaIndex) for orchestration and SQL helper classes
+  - sentence-transformers/all-MiniLM-L6-v2 for embedding
+- Libraries / Tools:
+  - SQLAlchemy
+  - openai Python SDK (used to call Groq endpoints)
+  - httpx, pydantic, asyncio (standard helpers)
 
-## 🚀 Proses Instalasi & Konfigurasi
-
-### 1. Menjalankan Environment dengan Docker
-Jalankan Open WebUI di dalam Docker agar berada di satu lingkungan jaringan yang sama dengan *host* (menggunakan `host.docker.internal` untuk menjembatani koneksi ke PostgreSQL lokal).
-
-Buka Command Prompt atau PowerShell, lalu jalankan perintah berikut:
-
-```bat
-docker run -d -p 3030:8080 ^
-  --add-host=host.docker.internal:host-gateway ^
-  -v open-webui:/app/backend/data ^
-  --name open-webui1 --restart always ^
-  -e DATABASE_URL="postgresql://postgres:1234@host.docker.internal:5432/film" ^
-  ghcr.io/open-webui/open-webui:main
-```
-
-### 2. Update Database PostgreSQL
-Pastikan *database* PostgreSQL Anda sudah berjalan dan tabel `dataset_pembangunan` sudah terisi dengan data yang relevan. 
-
-* **Host**: `host.docker.internal` (jika menggunakan docker compose di atas) atau `localhost`
-* **Port**: `5432`
-* **User**: `postgres`
-* **Password**: `1234`
-* **Database Target**: `bangun` (Catatan: pastikan nama *database* di dalam script sesuai dengan *database* Anda).
-
-### 3. Pemasangan Script di Open WebUI
-1. Buka Open WebUI di *browser* Anda (`http://localhost:3030`).
-2. Masuk ke menu **Workspace** > **Functions**
-3. Buat *Function* baru dengan mengeklik tombol **+ (Add)**.
-4. Salin (`Copy`) seluruh kode Python pada file Main, lalu tempel (`Paste`) ke dalam editor teks yang disediakan.
-5. Simpan dan aktifkan pipeline.
-6. Pipeline `Magang_Chatbot` kini siap digunakan di antarmuka obrolan utama.
-
-## 🧩 Teknologi yang Digunakan
-- **LlamaIndex**: Sebagai *framework* utama untuk orkestrasi Text-to-SQL.
-- **SQLAlchemy**: Untuk manajemen koneksi *database* ke PostgreSQL.
-- **HuggingFace Embeddings**: Menggunakan `sentence-transformers/all-MiniLM-L6-v2` untuk *vector store/retrieval*.
-- **Groq API**: Mesin inferensi berkecepatan tinggi untuk model Llama 3 dan Gemma 2.
-- **OpenAI Python SDK**: Digunakan sebagai klien untuk memanggil endpoint Groq.
+## Project Structure
+```text
+/
+├── Main         # Python Function file intended to be pasted into Open WebUI
+└── README.md    # Original project README (Indonesian) — replaced by this document
