@@ -58,7 +58,7 @@ def generate(messages):
 def validator(query_result: str, answer: str):
     client = openai.OpenAI(
         base_url="https://api.groq.com/openai/v1/",
-        api_key="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",
+        api_key="gsk_your_api_key",
     )
 
     validasi_pesan = [
@@ -230,7 +230,7 @@ class Pipe:
         # ==============================================================================
         llm = Groq(
             model="llama3-70b-8192",
-            api_key="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",
+            api_key="gsk_your_api_key",
         )
         Settings.llm = llm
         # ==============================================================================
