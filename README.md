@@ -1,4 +1,4 @@
-# Chatbot LLM RAG (Text-to-SQL) for Open WebUI
+# Chatbot LLM RAG PostgreSQL (Text-to-SQL) on Open WebUI
 
 A small Open WebUI Function that converts natural-language questions into SQL queries and returns answers sourced directly from a PostgreSQL table. The pipeline uses LlamaIndex for text-to-SQL orchestration, a HuggingFace embedding model for retrieval, and Groq-hosted LLMs for SQL generation and answer validation. It is designed to be used inside Open WebUI as a user-defined Function (pipe).
 
