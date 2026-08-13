@@ -1,4 +1,3 @@
-```markdown
 # Magang Chatbot - Open WebUI Text-to-SQL Pipeline
 
 Pipeline kustom untuk **Open WebUI** yang mengintegrasikan LlamaIndex, LLM (via Groq), dan PostgreSQL untuk mengubah pertanyaan bahasa natural menjadi *query* SQL (Text-to-SQL). Pipeline ini dirancang khusus untuk membaca `dataset_pembangunan` dan dilengkapi dengan agen validator untuk memastikan jawaban bebas dari halusinasi.
@@ -32,32 +31,3 @@ docker run -d -p 3030:8080 ^
   --name open-webui1 --restart always ^
   -e DATABASE_URL="postgresql://postgres:1234@host.docker.internal:5432/film" ^
   ghcr.io/open-webui/open-webui:main
-
-
-### 2. Update Database PostgreSQL
-
-Pastikan *database* PostgreSQL Anda sudah berjalan dan tabel `dataset_pembangunan` sudah terisi dengan data yang relevan.
-
-* **Host**: `host.docker.internal` (jika menggunakan docker compose di atas) atau `localhost`
-* **Port**: `5432`
-* **User**: `postgres`
-* **Password**: `1234`
-* **Database Target**: `bangun` (Catatan: pastikan nama *database* di dalam script sesuai dengan *database* Anda).
-
-### 3. Pemasangan Script di Open WebUI
-
-1. Buka Open WebUI di *browser* Anda (`http://localhost:3030`).
-2. Masuk ke menu **Workspace** > **Functions** (atau **Pipes**, tergantung versi Open WebUI).
-3. Buat *Function* baru dengan mengeklik tombol **+ (Add)**.
-4. Salin (`Copy`) seluruh kode Python Text-to-SQL Anda, lalu tempel (`Paste`) ke dalam editor teks yang disediakan.
-5. Simpan dan aktifkan pipeline.
-6. Pipeline `Magang_Chatbot` kini siap digunakan di antarmuka obrolan utama.
-
-## 🧩 Teknologi yang Digunakan
-
-* **LlamaIndex**: Sebagai *framework* utama untuk orkestrasi Text-to-SQL.
-* **SQLAlchemy**: Untuk manajemen koneksi *database* ke PostgreSQL.
-* **HuggingFace Embeddings**: Menggunakan `sentence-transformers/all-MiniLM-L6-v2` untuk *vector store/retrieval*.
-* **Groq API**: Mesin inferensi berkecepatan tinggi untuk model Llama 3 dan Gemma 2.
-* **OpenAI Python SDK**: Digunakan sebagai klien untuk memanggil endpoint Groq.
-```
