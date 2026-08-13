@@ -1,7 +1,3 @@
-Wah, mantap! Fitur-fiturnya sudah berjalan dengan baik, terutama untuk fleksibilitas *query* menggunakan `ILIKE` dan pemisahan entitas yang mirip. Menggabungkan semuanya dalam satu lingkungan Docker memang cara yang paling efisien agar Open WebUI dan PostgreSQL bisa saling berkomunikasi dengan lancar.
-
-Berikut adalah *draft* dokumentasi `README.md` yang sudah disusun rapi berdasarkan kode dan proses instalasi yang kamu berikan. Kamu bisa langsung menyalin seluruh isi di dalam blok kode di bawah ini dalam 1 kali klik.
-
 ```markdown
 # Magang Chatbot - Open WebUI Text-to-SQL Pipeline
 
@@ -37,7 +33,6 @@ docker run -d -p 3030:8080 ^
   -e DATABASE_URL="postgresql://postgres:1234@host.docker.internal:5432/film" ^
   ghcr.io/open-webui/open-webui:main
 
-```
 
 ### 2. Update Database PostgreSQL
 
@@ -65,9 +60,4 @@ Pastikan *database* PostgreSQL Anda sudah berjalan dan tabel `dataset_pembanguna
 * **HuggingFace Embeddings**: Menggunakan `sentence-transformers/all-MiniLM-L6-v2` untuk *vector store/retrieval*.
 * **Groq API**: Mesin inferensi berkecepatan tinggi untuk model Llama 3 dan Gemma 2.
 * **OpenAI Python SDK**: Digunakan sebagai klien untuk memanggil endpoint Groq.
-
-```
-
-Silakan disalin, dan jika ada instruksi tambahan atau dokumentasi API yang mau diselipkan, kabari saja!
-
 ```
