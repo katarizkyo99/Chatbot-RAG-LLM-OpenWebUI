@@ -1,6 +1,6 @@
 Chatbot LLM RAG Database PostgreSQL dengan Open WebUI (Text-to-SQL Pipeline)
 
-Pipeline kustom untuk **Open WebUI** yang mengintegrasikan LlamaIndex, LLM (via Groq), dan PostgreSQL untuk mengubah pertanyaan bahasa natural menjadi *query* SQL (Text-to-SQL). Pipeline ini dirancang khusus untuk membaca `dataset_pembangunan` dan dilengkapi dengan agen validator untuk memastikan jawaban bebas dari halusinasi.
+Pipeline chatbot dengan **Open WebUI** yang mengintegrasikan LlamaIndex, LLM (via Groq), dan PostgreSQL untuk mengubah pertanyaan bahasa natural menjadi *query* SQL (Text-to-SQL). Pipeline ini dirancang khusus untuk membaca `dataset_pembangunan` dalam PostgreSQL dan dilengkapi dengan agen validator untuk memastikan jawaban bebas dari halusinasi.
 
 ## ✨ Fitur Utama
 
